@@ -1,0 +1,7 @@
+# Dummy values for the "test" profile so the Spring context starts
+# without a real .env (e.g. on GitHub Actions CI).
+storage:
+  account-id: test-account
+  access-key-id: test-key
+  secret-access-key: test-secret
+  bucket: test-bucket
