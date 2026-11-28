@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalInt;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -31,6 +32,8 @@ class ShareRepository {
             RedisScript.of(new ClassPathResource("scripts/share-create.lua"), Long.class);
     private static final RedisScript<Long> MARK_READY =
             RedisScript.of(new ClassPathResource("scripts/share-mark-ready.lua"), Long.class);
+    private static final RedisScript<Long> CONSUME_DOWNLOAD =
+            RedisScript.of(new ClassPathResource("scripts/share-consume-download.lua"), Long.class);
 
     private final StringRedisTemplate redis;
 
@@ -75,6 +78,20 @@ class ShareRepository {
         Long updated = redis.execute(MARK_READY, List.of(key(code), EXPIRY_INDEX),
                 String.valueOf(expiresAt.toEpochMilli()));
         return updated != null && updated == 1L;
+    }
+
+    /**
+     * Atomically uses up one download. Safe under concurrency: with {@code remaining = N},
+     * exactly N callers succeed no matter how many arrive at once.
+     * When the last download is consumed the share key is deleted immediately and the
+     * R2 object is re-scheduled in {@code expiry:index} for deletion at {@code objectDeleteAt}.
+     *
+     * @return downloads left after this one, or empty if the share is missing, not READY, or used up
+     */
+    OptionalInt consumeDownload(String code, Instant objectDeleteAt) {
+        Long left = redis.execute(CONSUME_DOWNLOAD, List.of(key(code), EXPIRY_INDEX),
+                String.valueOf(objectDeleteAt.toEpochMilli()));
+        return left == null || left < 0 ? OptionalInt.empty() : OptionalInt.of(left.intValue());
     }
 
     void delete(String code) {
