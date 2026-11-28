@@ -84,15 +84,11 @@ Done and merged to `main`:
 1. Project setup (Spring Boot, Docker Redis, health check UP, CI green).
 2. `CodeGenerator` + tests: alphabet `23456789ABCDEFGHJKMNPQRSTUVWXYZ` (31 chars, no 0/O/1/I/L), length 5 (~28.6M codes), `SecureRandom`, `normalize()` = trim + `toUpperCase(Locale.ROOT)`, `isValid()` regex.
 
-In progress on branch `feat/storage` — steps 1–8 done (R2 token, `.env`, AWS SDK dependency, config, `StorageProperties`, `StorageConfig`, `StorageService`, `R2StorageService`). **Verify these files exist and compile before continuing.**
+3. Storage (PR #2): `StorageProperties`, `StorageConfig`, `R2StorageService` (presigned PUT with signed Content-Length, presigned GET, HeadObject, delete). Tests: `R2StorageServiceTest` (offline), `R2StorageServiceIT` (real R2, skipped unless `R2_ACCESS_KEY_ID` is set; run with `set -a && source .env && set +a && ./gradlew test --tests '*R2StorageServiceIT'` from `backend/`), `application-test.yml` test profile with dummy `storage.*` values.
 
-### NEXT: Step 9 — tests for storage
+In progress on branch `feat/share-repository`: roadmap item 1 (ShareRepository).
 
-a. `src/test/resources/application-test.yml` with dummy `storage.*` values (test-account / test-key / test-secret / test-bucket), and `@ActiveProfiles("test")` on `BackendApplicationTests` — otherwise CI fails (no `.env` on GitHub).
-b. `R2StorageServiceTest` (offline unit test): real `S3Presigner` from `new StorageConfig().s3Presigner(props)` with dummy props, `mock(S3Client.class)`. Assert: host `acc123.r2.cloudflarestorage.com`, path `/my-bucket/objects/abc` (path-style), query has `X-Amz-Expires=600`; upload headers exclude `host`/`content-length`; download URL has `X-Amz-Expires=60`.
-c. `R2StorageServiceIT` (real R2): `@SpringBootTest` + `@EnabledIfEnvironmentVariable(named = "R2_ACCESS_KEY_ID", matches = ".+")`; presign PUT → upload bytes with `java.net.http.HttpClient` adding returned headers → expect 200 → `objectSize` equals length → `delete` → `objectSize` empty. Run locally with: `set -a && source .env && set +a && ./gradlew test --tests '*R2StorageServiceIT'` (from `backend/`). If 403: check spaces in `.env` or token bucket scope.
-
-Then step 10–11: run `./gradlew test`, commit `feat: add R2 storage service with presigned URLs`, push `feat/storage`, PR, merge, `git switch main && git pull`.
+Notes: `gh` CLI is not installed — Emad opens/merges PRs on GitHub. In Claude's shell `docker` is not on PATH; use `/Applications/Docker.app/Contents/Resources/bin/docker` (`/usr/local/bin/docker` points to OrbStack).
 
 ## Roadmap after storage
 
