@@ -17,7 +17,7 @@ jobs:
         with:
           distribution: temurin
           java-version: 25
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
       # build = compile + tests + JaCoCo coverage gate (85% lines)
       - run: ./gradlew build
       - uses: actions/upload-artifact@v4
