@@ -40,7 +40,7 @@ sequenceDiagram
 | Files | Cloudflare R2 via AWS SDK v2 presigned URLs |
 | Frontend | React 19, Vite, TypeScript, Tailwind CSS 4, Web Crypto, PWA |
 | Abuse protection | Per-IP rate limits in Redis, Cloudflare Turnstile |
-| Tests | JUnit 5, AssertJ, Mockito, Testcontainers, MockMvc, Vitest, Testing Library |
+| Tests | JUnit 5, AssertJ, Mockito, Testcontainers, MockMvc, JaCoCo, Vitest, Testing Library, Playwright |
 | CI / hosting | GitHub Actions, Railway (API + Redis), Cloudflare Pages, R2 |
 
 ### Encryption
@@ -87,7 +87,10 @@ cd backend && cp .env.example .env         # fill in R2 credentials
 cd frontend && npm install && npm run dev  # http://localhost:5173
 ```
 
-Tests: `./gradlew test` (backend, needs Docker for Testcontainers) and `npm test` (frontend).
+Tests:
+- Backend: `./gradlew check` (needs Docker for Testcontainers; also enforces 85% line coverage, report in `build/reports/jacoco`).
+- Frontend unit/component: `npm test`.
+- Browser E2E: `npx playwright install chromium` once, then `npm run test:e2e`. It runs the built app in Chromium (desktop + mobile) with the API, R2 and Turnstile faked, and checks that only ciphertext reaches storage.
 The real-R2 integration test runs only when the R2 variables are exported:
 `set -a && source .env && set +a && ./gradlew test --tests '*R2StorageServiceIT'`.
 
