@@ -32,6 +32,8 @@ class ShareRepository {
             RedisScript.of(new ClassPathResource("scripts/share-create.lua"), Long.class);
     private static final RedisScript<Long> MARK_READY =
             RedisScript.of(new ClassPathResource("scripts/share-mark-ready.lua"), Long.class);
+    private static final RedisScript<Long> REMOVE_IF_DUE =
+            RedisScript.of(new ClassPathResource("scripts/expiry-index-remove.lua"), Long.class);
     private static final RedisScript<Long> CONSUME_DOWNLOAD =
             RedisScript.of(new ClassPathResource("scripts/share-consume-download.lua"), Long.class);
 
@@ -92,6 +94,20 @@ class ShareRepository {
         Long left = redis.execute(CONSUME_DOWNLOAD, List.of(key(code), EXPIRY_INDEX),
                 String.valueOf(objectDeleteAt.toEpochMilli()));
         return left == null || left < 0 ? OptionalInt.empty() : OptionalInt.of(left.intValue());
+    }
+
+    /** R2 objects whose share has expired or was used up (score <= now), oldest first. */
+    List<String> findDueObjectKeys(Instant now, int limit) {
+        var keys = redis.opsForZSet().rangeByScore(EXPIRY_INDEX, Double.NEGATIVE_INFINITY,
+                now.toEpochMilli(), 0, limit);
+        return keys == null ? List.of() : List.copyOf(keys);
+    }
+
+    /** Removes the entry only if it is still due (its score was not moved into the future meanwhile). */
+    boolean removeFromExpiryIndexIfDue(String objectKey, Instant now) {
+        Long removed = redis.execute(REMOVE_IF_DUE, List.of(EXPIRY_INDEX), objectKey,
+                String.valueOf(now.toEpochMilli()));
+        return removed != null && removed == 1L;
     }
 
     void delete(String code) {

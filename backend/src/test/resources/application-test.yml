@@ -5,3 +5,7 @@ storage:
   access-key-id: test-key
   secret-access-key: test-secret
   bucket: test-bucket
+
+dropcode:
+  scheduling:
+    enabled: false
