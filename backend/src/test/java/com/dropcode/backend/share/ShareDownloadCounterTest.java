@@ -122,7 +122,7 @@ class ShareDownloadCounterTest {
     }
 
     private static Share share(ShareStatus status, int downloads) {
-        return new Share(CODE, OBJECT_KEY, 1024, status, downloads, false, null, null, "bWV0YQ==", 0,
-                Instant.now().plus(Duration.ofMinutes(15)).truncatedTo(ChronoUnit.MILLIS));
+        return new Share(CODE, OBJECT_KEY, 1024, status, downloads, false, null, null, "bWV0YQ==", "a2V5", 0,
+                Duration.ofHours(24), Instant.now().plus(Duration.ofMinutes(15)).truncatedTo(ChronoUnit.MILLIS));
     }
 }

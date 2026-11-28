@@ -88,7 +88,8 @@ Done and merged to `main`:
 
 4. ShareRepository (PR #3): `Share` Hash `share:{code}`, Lua `share-create.lua` (create only if code free + TTL + `expiry:index`) and `share-mark-ready.lua`. Testcontainers tests (`redis:7-alpine`).
 
-In progress on branch `feat/download-counter`: roadmap item 2 (atomic download decrement, `share-consume-download.lua`).
+5. Download counter (PR #4): `share-consume-download.lua` (READY + `remaining > 0` + decrement atomically; last download deletes the key and re-schedules the R2 object in `expiry:index` +2 min). 100-parallel test.
+6. Share API (branch `feat/share-api`): `ShareService` + `ShareController` under `/api/v1/shares`, `ShareDtos`, `ShareErrors` (ProblemDetail via `ErrorResponseException`), `ShareExpiry`, `ShareConfig` (`Clock`, Argon2id `PasswordEncoder` from spring-security-crypto + bcprov). `Share` gained `fileKey` (unprotected only) and `lifetime` (chosen expiry, applied on complete). Deviation from plan: `GET /shares/{code}` returns `salt` (the downloader needs it to derive authToken before calling download). Not yet: failedAttempts lock (security step).
 
 Notes: `gh` CLI is not installed — Claude opens/merges PRs via the built-in browser (Emad signed in to GitHub there). In Claude's shell `docker` is not on PATH; use `/Applications/Docker.app/Contents/Resources/bin/docker` (`/usr/local/bin/docker` points to OrbStack).
 
