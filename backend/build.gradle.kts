@@ -30,7 +30,7 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-testcontainers")
 	testImplementation("org.testcontainers:testcontainers-junit-jupiter")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-	implementation(platform("software.amazon.awssdk:bom:2.47.6"))
+	implementation(platform("software.amazon.awssdk:bom:2.59.9"))
 	implementation("software.amazon.awssdk:s3")
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:3.2.1")
