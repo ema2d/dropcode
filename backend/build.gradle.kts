@@ -29,6 +29,8 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-testcontainers")
 	testImplementation("org.testcontainers:testcontainers-junit-jupiter")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+	implementation(platform("software.amazon.awssdk:bom:2.47.6"))
+	implementation("software.amazon.awssdk:s3")
 }
 
 tasks.withType<Test> {
