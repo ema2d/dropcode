@@ -20,7 +20,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@v6
       # build = compile + tests + JaCoCo coverage gate (85% lines)
       - run: ./gradlew build
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: backend-coverage
@@ -58,7 +58,7 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: playwright-report
