@@ -97,7 +97,7 @@ Done and merged to `main`:
 
 11. Quality: JaCoCo (`./gradlew check` fails below 85% lines / 70% branches; currently ~93% / 74%), Playwright E2E (`frontend/e2e`, `npm run test:e2e`): real built app in Chromium (desktop + Pixel 7) with API/R2/Turnstile faked in memory (`e2e/fake-backend.ts`, `serviceWorkers: 'block'`). CI jobs: backend, frontend, e2e.
 
-12. Dependency policy (`docs/dependencies.md`): Dependabot monthly, minor/patch grouped, majors one PR each and **never auto-merged** (review + test, then merge), security updates enabled in repo settings. Ignored majors: `typescript` 7 (openapi-typescript needs 5), `jsdom` 27+ (Node 23 locally). Merged so far: AWS SDK BOM 2.59.9 (real-R2 IT passed), actions/checkout v7, … GitHub API without auth = 60 req/h: check PR state with `git fetch origin pull/N/head` + the browser instead of polling the API.
+12. Dependency policy (`docs/dependencies.md`): Dependabot monthly, minor/patch grouped, majors one PR each and **never auto-merged** (review + test, then merge), security updates enabled in repo settings. Ignored majors: `typescript` 7 (openapi-typescript needs 5), `jsdom` 27+ (Node 23 locally). Merged after individual review + CI on current main: AWS SDK BOM 2.59.9 (also real-R2 IT locally), actions/checkout v7, actions/setup-java v6, gradle/actions v6, actions/setup-node v7. Closed: typescript 7 (#13), jsdom 31 (#14). GitHub API without auth = 60 req/h: check PR state with `git fetch origin pull/N/head` + the browser instead of polling the API.
 
 Deploy happens only when the project is 100% ready (Emad's decision).
 
