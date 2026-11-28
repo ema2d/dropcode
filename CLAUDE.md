@@ -86,9 +86,11 @@ Done and merged to `main`:
 
 3. Storage (PR #2): `StorageProperties`, `StorageConfig`, `R2StorageService` (presigned PUT with signed Content-Length, presigned GET, HeadObject, delete). Tests: `R2StorageServiceTest` (offline), `R2StorageServiceIT` (real R2, skipped unless `R2_ACCESS_KEY_ID` is set; run with `set -a && source .env && set +a && ./gradlew test --tests '*R2StorageServiceIT'` from `backend/`), `application-test.yml` test profile with dummy `storage.*` values.
 
-In progress on branch `feat/share-repository`: roadmap item 1 (ShareRepository).
+4. ShareRepository (PR #3): `Share` Hash `share:{code}`, Lua `share-create.lua` (create only if code free + TTL + `expiry:index`) and `share-mark-ready.lua`. Testcontainers tests (`redis:7-alpine`).
 
-Notes: `gh` CLI is not installed — Emad opens/merges PRs on GitHub. In Claude's shell `docker` is not on PATH; use `/Applications/Docker.app/Contents/Resources/bin/docker` (`/usr/local/bin/docker` points to OrbStack).
+In progress on branch `feat/download-counter`: roadmap item 2 (atomic download decrement, `share-consume-download.lua`).
+
+Notes: `gh` CLI is not installed — Claude opens/merges PRs via the built-in browser (Emad signed in to GitHub there). In Claude's shell `docker` is not on PATH; use `/Applications/Docker.app/Contents/Resources/bin/docker` (`/usr/local/bin/docker` points to OrbStack).
 
 ## Roadmap after storage
 
