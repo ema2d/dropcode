@@ -1,7 +1,13 @@
 package com.dropcode.backend.storage;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.function.Consumer;
 
 import java.net.URI;
 import java.time.Duration;
@@ -11,6 +17,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 /**
@@ -23,12 +33,14 @@ class R2StorageServiceTest {
             new StorageProperties("acc123", "test-key", "test-secret", "my-bucket");
 
     private S3Presigner presigner;
+    private S3Client client;
     private R2StorageService service;
 
     @BeforeEach
     void setUp() {
         presigner = new StorageConfig().s3Presigner(PROPS);
-        service = new R2StorageService(mock(S3Client.class), presigner, PROPS);
+        client = mock(S3Client.class);
+        service = new R2StorageService(client, presigner, PROPS);
     }
 
     @AfterEach
@@ -72,5 +84,48 @@ class R2StorageServiceTest {
         assertThat(url.getPath()).isEqualTo("/my-bucket/objects/abc");
         assertThat(url.getQuery()).contains("X-Amz-Expires=60");
         assertThat(url.getQuery()).doesNotContain("X-Amz-Expires=600");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void objectSize_returnsContentLength() {
+        when(client.headObject(any(Consumer.class)))
+                .thenReturn(HeadObjectResponse.builder().contentLength(42L).build());
+
+        assertThat(service.objectSize("objects/abc")).contains(42L);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void objectSize_isEmptyWhenObjectIsMissing() {
+        when(client.headObject(any(Consumer.class))).thenThrow(NoSuchKeyException.builder().build());
+        assertThat(service.objectSize("objects/abc")).isEmpty();
+
+        // HEAD responses have no body, so R2 often reports "missing" as a plain 404 S3Exception
+        when(client.headObject(any(Consumer.class)))
+                .thenThrow(S3Exception.builder().statusCode(404).build());
+        assertThat(service.objectSize("objects/abc")).isEmpty();
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void objectSize_rethrowsOtherErrors() {
+        when(client.headObject(any(Consumer.class)))
+                .thenThrow(S3Exception.builder().statusCode(403).build());
+
+        assertThatThrownBy(() -> service.objectSize("objects/abc")).isInstanceOf(S3Exception.class);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void delete_targetsConfiguredBucket() {
+        service.delete("objects/abc");
+
+        var captor = org.mockito.ArgumentCaptor.forClass(Consumer.class);
+        verify(client).deleteObject(captor.capture());
+        DeleteObjectRequest.Builder builder = DeleteObjectRequest.builder();
+        ((Consumer<DeleteObjectRequest.Builder>) captor.getValue()).accept(builder);
+        assertThat(builder.build().bucket()).isEqualTo("my-bucket");
+        assertThat(builder.build().key()).isEqualTo("objects/abc");
     }
 }
