@@ -95,6 +95,8 @@ Done and merged to `main`:
 9. `backend/Dockerfile` (multi-stage, layered jar, non-root, MaxRAMPercentage=75) — smoke-tested locally with `-m 512m` (~300 MB used). `.github/dependabot.yml`.
 10. Frontend (`frontend/`): Vite 8 + React 19 + TS 5.9 + Tailwind 4. `lib/crypto.ts` (Web Crypto, PBKDF2 600k → AES key + authToken), `lib/api.ts` (types generated from OpenAPI: `npm run gen:api` with backend on :8080), `components/` (UploadPage, DownloadPage with auto-lookup on deep link, CodeInput, Turnstile + `useCaptcha` retry, QrCode), i18n ar/en (`i18n/`), PWA with own `src/sw.ts` (Android share target). `.npmrc` `legacy-peer-deps=true` (npm 11.0 arborist crash). jsdom pinned to 26 (31 needs Node ≥22.22/24; Emad has Node 23.6). Tested end to end in the browser against real R2 (dev bucket CORS allows `http://localhost:5173`). CI job `frontend` (Node 24). README, `docs/adr/0001-0004`, `docs/deploy.md`.
 
+11. Quality: JaCoCo (`./gradlew check` fails below 85% lines / 70% branches; currently ~93% / 74%), Playwright E2E (`frontend/e2e`, `npm run test:e2e`): real built app in Chromium (desktop + Pixel 7) with API/R2/Turnstile faked in memory (`e2e/fake-backend.ts`, `serviceWorkers: 'block'`). CI jobs: backend, frontend, e2e.
+
 Deploy happens only when the project is 100% ready (Emad's decision).
 
 Notes: Emad wants few pushes — commit locally on a feature branch and push/PR/merge only at big milestones (several roadmap items together) or when asked. `gh` CLI is not installed — Claude opens/merges PRs via the built-in browser (Emad signed in to GitHub there). In Claude's shell `docker` is not on PATH; use `/Applications/Docker.app/Contents/Resources/bin/docker` (`/usr/local/bin/docker` points to OrbStack).

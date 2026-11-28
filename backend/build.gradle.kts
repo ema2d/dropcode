@@ -1,5 +1,6 @@
 plugins {
 	java
+	jacoco
 	id("org.springframework.boot") version "4.2.0"
 	id("io.spring.dependency-management") version "1.1.7"
 }
@@ -39,4 +40,41 @@ dependencies {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+// Coverage: HTML + XML report after every test run (build/reports/jacoco)
+tasks.test {
+	finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+	dependsOn(tasks.test)
+	reports {
+		xml.required = true
+		html.required = true
+	}
+}
+
+// Build fails if coverage drops (BackendApplication.main is excluded: it only starts Spring)
+tasks.jacocoTestCoverageVerification {
+	dependsOn(tasks.jacocoTestReport)
+	classDirectories.setFrom(files(classDirectories.files.map {
+		fileTree(it) { exclude("com/dropcode/backend/BackendApplication*") }
+	}))
+	violationRules {
+		rule {
+			limit {
+				counter = "LINE"
+				minimum = "0.85".toBigDecimal()
+			}
+			limit {
+				counter = "BRANCH"
+				minimum = "0.70".toBigDecimal()
+			}
+		}
+	}
+}
+
+tasks.check {
+	dependsOn(tasks.jacocoTestCoverageVerification)
 }
