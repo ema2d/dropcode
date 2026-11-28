@@ -8,6 +8,10 @@ updates:
     groups:
       spring:
         patterns: ["org.springframework*", "io.spring*"]
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: weekly
   - package-ecosystem: github-actions
     directory: /
     schedule:
