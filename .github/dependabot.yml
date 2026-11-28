@@ -1,18 +1,51 @@
-# Weekly dependency update PRs
+# Dependency update policy (see docs/dependencies.md)
+#
+# - Security updates: enabled in GitHub settings (Dependabot alerts + security updates).
+#   They are opened as soon as a vulnerability is found, independent of this schedule.
+# - Version updates: monthly. Minor and patch updates are grouped into one PR per ecosystem.
+# - Major updates: one PR each, never merged automatically. Review the changelog,
+#   test locally and in CI, then merge by hand.
 version: 2
 updates:
   - package-ecosystem: gradle
     directory: /backend
     schedule:
-      interval: weekly
+      interval: monthly
+    open-pull-requests-limit: 5
+    labels: [dependencies, backend]
+    commit-message:
+      prefix: chore(deps)
     groups:
-      spring:
-        patterns: ["org.springframework*", "io.spring*"]
+      backend-minor-and-patch:
+        update-types: [minor, patch]
+
   - package-ecosystem: npm
     directory: /frontend
     schedule:
-      interval: weekly
+      interval: monthly
+    open-pull-requests-limit: 5
+    labels: [dependencies, frontend]
+    commit-message:
+      prefix: chore(deps)
+    groups:
+      frontend-minor-and-patch:
+        update-types: [minor, patch]
+    ignore:
+      # TypeScript 7: openapi-typescript (API type generation) requires TypeScript 5.
+      # Revisit when openapi-typescript supports 7.
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
+      # jsdom 27+: needs Node ^22.22 / ^24.15; local dev uses Node 23. Revisit after moving to Node 24 LTS.
+      - dependency-name: jsdom
+        update-types: ["version-update:semver-major"]
+
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
+      interval: monthly
+    labels: [dependencies, ci]
+    commit-message:
+      prefix: chore(ci)
+    groups:
+      actions-minor-and-patch:
+        update-types: [minor, patch]

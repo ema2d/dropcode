@@ -94,6 +94,10 @@ Tests:
 The real-R2 integration test runs only when the R2 variables are exported:
 `set -a && source .env && set +a && ./gradlew test --tests '*R2StorageServiceIT'`.
 
+## Dependencies
+
+Dependabot runs monthly with grouped minor/patch updates; security updates are immediate; major versions are reviewed and tested by hand. See [docs/dependencies.md](docs/dependencies.md).
+
 ## Deploy
 
 See [docs/deploy.md](docs/deploy.md).
