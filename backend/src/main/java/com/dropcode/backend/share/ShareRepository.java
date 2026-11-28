@@ -108,7 +108,9 @@ class ShareRepository {
         putIfNotNull(hash, "authHash", s.authHash());
         putIfNotNull(hash, "salt", s.salt());
         putIfNotNull(hash, "encMeta", s.encMeta());
+        putIfNotNull(hash, "fileKey", s.fileKey());
         hash.put("failedAttempts", String.valueOf(s.failedAttempts()));
+        hash.put("lifetime", String.valueOf(s.lifetime().toSeconds()));
         hash.put("expiresAt", String.valueOf(s.expiresAt().toEpochMilli()));
         return hash;
     }
@@ -130,7 +132,9 @@ class ShareRepository {
                 (String) h.get("authHash"),
                 (String) h.get("salt"),
                 (String) h.get("encMeta"),
+                (String) h.get("fileKey"),
                 Integer.parseInt((String) h.get("failedAttempts")),
+                Duration.ofSeconds(Long.parseLong((String) h.get("lifetime"))),
                 Instant.ofEpochMilli(Long.parseLong((String) h.get("expiresAt"))));
     }
 }

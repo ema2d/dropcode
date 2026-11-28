@@ -159,13 +159,13 @@ class ShareRepositoryTest {
 
     private static Share pendingShare(String code, String objectKey) {
         return new Share(code, objectKey, 1024, ShareStatus.PENDING, 1, false,
-                null, null, "ZW5jTWV0YQ==", 0, expiresIn15Minutes());
+                null, null, "ZW5jTWV0YQ==", "ZmlsZUtleQ==", 0, Duration.ofHours(24), expiresIn15Minutes());
     }
 
     private static Share protectedShare(String code) {
         return new Share(code, "objects/uuid-1", 2048, ShareStatus.PENDING, 3, true,
                 "$argon2id$v=19$m=16384,t=2,p=1$c2FsdA$aGFzaA", "c2FsdC1iYXNlNjQ=", "ZW5jTWV0YQ==",
-                0, expiresIn15Minutes());
+                null, 0, Duration.ofDays(7), expiresIn15Minutes());
     }
 
     private static Instant expiresIn15Minutes() {

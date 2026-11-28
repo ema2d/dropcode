@@ -31,6 +31,8 @@ dependencies {
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 	implementation(platform("software.amazon.awssdk:bom:2.47.6"))
 	implementation("software.amazon.awssdk:s3")
+	implementation("org.springframework.security:spring-security-crypto")
+	runtimeOnly("org.bouncycastle:bcprov-jdk18on:1.87")
 }
 
 tasks.withType<Test> {
